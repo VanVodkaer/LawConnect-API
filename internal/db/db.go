@@ -3,8 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql" // 导入 MySQL 驱动
@@ -39,7 +39,7 @@ func InitDB(dsn string) {
 
 // execSchemaSQL 执行外部 SQL 文件
 func execSchemaSQL(filepath string) error {
-	content, err := ioutil.ReadFile(filepath)
+	content, err := os.ReadFile(filepath)
 	if err != nil {
 		return fmt.Errorf("读取 SQL 文件失败: %v", err)
 	}

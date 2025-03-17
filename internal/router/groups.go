@@ -42,9 +42,20 @@ func RegisterRoutes(r *gin.Engine) {
 
 // registerPublicRoutes 注册公共路由
 func registerPublicRoutes() {
-	// 示例路由，取消注释即可启用
-	// Groups.Public.GET("/article", handler.GetArticles)
-	// Groups.Public.GET("/article/:id", handler.GetArticleByID)
+	// 法学交流社区
+	Groups.Public.GET("/community/latest", handler.GetCommunityLatest)
+	Groups.Public.GET("/community/hottest", handler.GetCommunityHottest)
+	Groups.Public.GET("/community/hotqa", handler.GetCommunityHotQA)
+
+	// 政策推送专区
+	Groups.Public.GET("/policy/latest", handler.GetPolicyLatest)
+	Groups.Public.GET("/policy/local", handler.GetPolicyLocal)
+	Groups.Public.GET("/policy/interpretation", handler.GetPolicyInterpretation)
+
+	// 线下实践平台
+	Groups.Public.GET("/offline/cooperation", handler.GetOfflineCooperation)
+	Groups.Public.GET("/offline/online", handler.GetOfflineOnline)
+	Groups.Public.GET("/offline/registration", handler.GetOfflineRegistration)
 }
 
 // registerAuthRoutes 注册认证相关路由

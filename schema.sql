@@ -13,13 +13,15 @@ CREATE TABLE IF NOT EXISTS users (
     role TINYINT NOT NULL DEFAULT 1 COMMENT '用户权限：1-普通用户，2-管理员'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建分类表
+-- 创建分类表，支持父分类
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY COMMENT '分类ID',
-    name VARCHAR(100) NOT NULL COMMENT '分类名称'
+    name VARCHAR(100) NOT NULL COMMENT '分类名称',
+    parent_id INT DEFAULT NULL COMMENT '父分类ID',
+    CONSTRAINT fk_parent_category FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建文章表（包含分类ID属性）
+-- 创建文章表（包含分类ID属性），增加评论数量字段 comment_count
 CREATE TABLE IF NOT EXISTS articles (
     id INT AUTO_INCREMENT PRIMARY KEY COMMENT '文章ID',
     is_visible TINYINT NOT NULL DEFAULT 1 COMMENT '是否可见：0-不可见，1-可见',
@@ -28,6 +30,7 @@ CREATE TABLE IF NOT EXISTS articles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后编辑时间',
     likes INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '点赞数',
+    comment_count INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '评论数量',
     user_id INT NOT NULL COMMENT '发布用户ID',
     category_id INT NOT NULL COMMENT '文章分类ID',
     INDEX idx_user_id (user_id),
