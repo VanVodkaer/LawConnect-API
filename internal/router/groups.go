@@ -32,7 +32,6 @@ func InitGroups(r *gin.Engine) {
 func RegisterRoutes(r *gin.Engine) {
 	// 初始化路由组
 	InitGroups(r)
-
 	// 注册各组路由
 	registerPublicRoutes()
 	registerAuthRoutes()
@@ -46,16 +45,16 @@ func registerPublicRoutes() {
 	Groups.Public.GET("/community/latest", handler.GetCommunityLatest)
 	Groups.Public.GET("/community/hottest", handler.GetCommunityHottest)
 	Groups.Public.GET("/community/hotqa", handler.GetCommunityHotQA)
-
 	// 政策推送专区
 	Groups.Public.GET("/policy/latest", handler.GetPolicyLatest)
 	Groups.Public.GET("/policy/local", handler.GetPolicyLocal)
 	Groups.Public.GET("/policy/interpretation", handler.GetPolicyInterpretation)
-
 	// 线下实践平台
 	Groups.Public.GET("/offline/cooperation", handler.GetOfflineCooperation)
 	Groups.Public.GET("/offline/online", handler.GetOfflineOnline)
 	Groups.Public.GET("/offline/registration", handler.GetOfflineRegistration)
+	// 文章详情路由
+	Groups.Public.GET("/article/:id", handler.GetArticleDetail)
 }
 
 // registerAuthRoutes 注册认证相关路由
@@ -68,9 +67,22 @@ func registerAuthRoutes() {
 func registerAPIRoutes() {
 	// 示例路由，取消注释即可启用
 	// Groups.API.GET("/user/profile", handler.GetUserProfile)
-
 	// 刷新令牌路由
 	Groups.API.POST("/refresh-token", middleware.RefreshToken)
+
+	// 评论相关路由
+	Groups.API.POST("/article/:id/comment", handler.AddComment)
+
+	// 文章点赞相关路由
+	Groups.API.POST("/article/:id/like", handler.LikeArticle)         // 点赞
+	Groups.API.DELETE("/article/:id/like", handler.UnlikeArticle)     // 取消点赞
+	Groups.API.GET("/article/:id/like", handler.GetArticleLikeStatus) // 获取点赞状态
+
+	// 评论点赞相关路由
+	Groups.API.POST("/comment/:id/like", handler.LikeComment)         // 点赞
+	Groups.API.DELETE("/comment/:id/like", handler.UnlikeComment)     // 取消点赞
+	Groups.API.GET("/comment/:id/like", handler.GetCommentLikeStatus) // 获取点赞状态
+
 }
 
 // registerAdminRoutes 注册管理员路由

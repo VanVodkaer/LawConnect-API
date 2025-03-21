@@ -39,14 +39,41 @@ CREATE TABLE IF NOT EXISTS articles (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建评论表
+-- 创建评论表（增加了user_id字段）
 CREATE TABLE IF NOT EXISTS comments (
     id INT AUTO_INCREMENT PRIMARY KEY COMMENT '评论ID',
     article_id INT NOT NULL COMMENT '评论关联文章ID',
     content TEXT NOT NULL COMMENT '评论内容',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '评论发表时间',
+    user_id INT NOT NULL COMMENT '发表评论的用户ID',
     is_visible TINYINT NOT NULL DEFAULT 0 COMMENT '是否可见：0-审核中，1-可见，2-审核未通过',
     likes INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '点赞数',
     INDEX idx_article_id (article_id),
-    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
+    INDEX idx_user_id (user_id),
+    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 创建文章点赞记录表（记录用户对文章的点赞，防止重复点赞）
+CREATE TABLE IF NOT EXISTS article_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '点赞记录ID',
+    article_id INT NOT NULL COMMENT '被点赞的文章ID',
+    user_id INT NOT NULL COMMENT '点赞用户ID',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+    INDEX idx_article_user (article_id, user_id), -- 用于快速查询用户是否已点赞
+    UNIQUE KEY uk_article_user (article_id, user_id), -- 确保一个用户只能给同一文章点赞一次
+    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 创建评论点赞记录表（记录用户对评论的点赞，防止重复点赞）
+CREATE TABLE IF NOT EXISTS comment_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '点赞记录ID',
+    comment_id INT NOT NULL COMMENT '被点赞的评论ID',
+    user_id INT NOT NULL COMMENT '点赞用户ID',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+    INDEX idx_comment_user (comment_id, user_id), -- 用于快速查询用户是否已点赞
+    UNIQUE KEY uk_comment_user (comment_id, user_id), -- 确保一个用户只能给同一评论点赞一次
+    FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

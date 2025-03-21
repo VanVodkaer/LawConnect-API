@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/VanVodkaer/LawConnect-API/internal/db"
 	"github.com/gin-gonic/gin"
@@ -101,4 +102,39 @@ func GetOfflineRegistration(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 200, "message": "成功", "data": articles})
+}
+
+// GetArticleDetail 获取文章详情及评论
+func GetArticleDetail(c *gin.Context) {
+	// 获取文章ID参数
+	id := c.Param("id")
+	articleID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的文章ID"})
+		return
+	}
+
+	// 查询文章详情
+	article, err := db.GetArticleByID(articleID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "查询失败"})
+		return
+	}
+
+	// 查询文章评论
+	comments, err := db.GetCommentsByArticleID(articleID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "查询评论失败"})
+		return
+	}
+
+	// 返回文章详情和评论
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "成功",
+		"data": gin.H{
+			"article":  article,
+			"comments": comments,
+		},
+	})
 }
